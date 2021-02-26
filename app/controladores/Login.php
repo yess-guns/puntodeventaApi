@@ -31,17 +31,14 @@ class Login extends Controlador
 
 			$response = [
 				"tipo" => [
-					"tipoID" => 0,
+					"clave" => 0,
 					"tipoNombre" => ''
 				],
 				"user" => [
 					"userID" => 0,
 					"userEmail" => ''
 				],
-				"token" => '',
-				"actions" => [
-					"comment" => 0
-				]
+				"token" => ''
 
 			];
 
@@ -67,7 +64,7 @@ class Login extends Controlador
 						if ($userdb) {
 							$key = $this->login->genKey($userdb[0]['id_usuario']);
 							$this->modelUser->initIngreso($userdb[0]['id_usuario'], $key, $ip, $pais, $region, $fecha, $hora);
-							$response['tipo']['tipoID'] = $userdb[0]['id_permiso'];
+							$response['tipo']['clave'] = $userdb[0]['clave'];
 							$response['tipo']['tipoNombre'] = $userdb[0]['nombrePermiso'];
 							$response['user']['userID'] = $userdb[0]['id_usuario'];
 							$response['user']['userEmail'] = $userdb[0]['email'];

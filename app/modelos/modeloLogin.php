@@ -35,7 +35,8 @@ class modeloLogin
 				"usuarios.id_usuario",
 				"usuarios.email",
 				"usuarios.id_permiso",
-				"permisos.nombrePermiso"
+				"permisos.nombrePermiso",
+				"permisos.clave"
 			],
 			[
 				"usuarios.email" => $email,

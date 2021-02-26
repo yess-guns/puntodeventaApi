@@ -4,7 +4,7 @@ class Insumos extends Controlador
 
 	public function __construct()
 	{
-		$this->modelo = $this->modelos('modeloAdmin');
+		$this->modelo = $this->modelos('modeloInsumos');
 	}
   //----------------------Admin-------------------
   //Unidades
@@ -219,6 +219,30 @@ class Insumos extends Controlador
   }
 
   //Insumos
+  public function getDataFormInsumo()
+  {
+    $resp = [
+      'status' => '',
+      'res' => ''
+    ];
+    if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+      $unidades = $this->modelo->getUnidades();
+      $medidas = $this->modelo->getMedidas();
+      $categorias = $this->modelo->getCategorias();
+      $dataForm = [
+        'unidades' => $unidades,
+        'medidas' => $medidas,
+        'categorias' => $categorias
+      ];
+      $resp['status'] = 'OK';
+      $resp['res'] = $dataForm;
+      echo json_encode($resp);
+    }else{
+      $resp['status'] = 'err';
+      $resp['res'] = 'Metodo invalido';
+      echo json_encode($resp);
+    }
+  }
 	public function getInsumos(){
 		$resp = [
       'status' => '',
@@ -241,12 +265,12 @@ class Insumos extends Controlador
       'res' => ''
     ];
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-      $nombre = $_POST['nombreI'];
-      $valid = $this->modelo->validInsumo($nombre);
+      $form = json_decode($_POST['form'], true);
+      $valid = $this->modelo->validInsumo($form['nombreI']);
       if($valid){
         $resp['status'] = 'existing';
       }else{
-        $addI = $this->modelo->newInsumo($nombre);
+        $addI = $this->modelo->newInsumo($form);
         if($addI){
           $resp['status'] = 'OK';
         }else{
