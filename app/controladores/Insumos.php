@@ -312,4 +312,66 @@ class Insumos extends Controlador
       echo json_encode($resp);
     }
   }
+  public function getInsumosProduc($idProducto){
+		$resp = [
+      'status' => '',
+      'res' => ''
+    ];
+    if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+      $insumos = $this->modelo->getInsumosProducto($idProducto);
+      $resp['status'] = 'OK';
+      $resp['res'] = $insumos;
+      echo json_encode($resp);
+    }else{
+      $resp['status'] = 'err';
+      $resp['res'] = 'Metodo invalido';
+      echo json_encode($resp);
+    }
+  }
+  public function updateStatusInP(){
+		$resp = [
+      'status' => '',
+      'res' => ''
+    ];
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      $idProIn = $_POST['id_productoIn'];
+      $status = $_POST['status'];
+      
+      $update = $this->modelo->updateStatusInP($idProIn, $status);
+      if($update){
+        $resp['status'] = 'OK';
+      }else{
+        $resp['status'] = 'error';
+        $resp['res'] = 'Error de sintaxis';
+      }
+      echo json_encode($resp);
+    }else{
+      $resp['status'] = 'err';
+      $resp['res'] = 'Metodo invalido';
+      echo json_encode($resp);
+    }
+  }
+  public function updateCantidadInP(){
+		$resp = [
+      'status' => '',
+      'res' => ''
+    ];
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      $idProIn = $_POST['id_productoIn'];
+      $cantidad = $_POST['cantidad'];
+      
+      $update = $this->modelo->updateCantidadInP($idProIn, $cantidad);
+      if($update){
+        $resp['status'] = 'OK';
+      }else{
+        $resp['status'] = 'error';
+        $resp['res'] = 'Error de sintaxis';
+      }
+      echo json_encode($resp);
+    }else{
+      $resp['status'] = 'err';
+      $resp['res'] = 'Metodo invalido';
+      echo json_encode($resp);
+    }
+  }
 }

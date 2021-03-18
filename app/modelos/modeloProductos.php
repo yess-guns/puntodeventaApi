@@ -54,40 +54,55 @@ class modeloProductos
   }
 
   //----Insumos
-	public function getProductos()
+	public function getProductos($idCategoria)
 	{
     $data = $this->db->select("producto",
-    [
-      "[><]categoriaproducto" => ["id_categoriaPro" => "id_categoriaPro"],
-      "[><]tipoproducto" => ["id_tipoPoducto" => "id_tipoPoducto"],
-      "[><]destino" => ["id_destino" => "id_destino"]
-    ],
-    [
-			"producto.id_producto",
-      "producto.nombreProducto",
-      "producto.precio",
-      "producto.stock",
-      "categoriaproducto.id_categoriaPro",
-      "categoriaproducto.nombrecategoriaPro",
-      "tipoproducto.id_tipoPoducto",
-      "tipoproducto.nombreTipoProducto",
-      "destino.id_destino",
-      "destino.nombreDestino"
-		]);
+      [
+        "[><]categoriaproducto" => ["id_categoriaPro" => "id_categoriaPro"],
+        "[><]tipoproducto" => ["id_tipoPoducto" => "id_tipoPoducto"],
+        "[><]destino" => ["id_destino" => "id_destino"]
+      ],
+      [
+        "producto.id_producto",
+        "producto.nombreProducto",
+        "producto.precio",
+        "producto.stock",
+        "categoriaproducto.id_categoriaPro",
+        "categoriaproducto.nombrecategoriaPro",
+        "tipoproducto.id_tipoPoducto",
+        "tipoproducto.nombreTipoProducto",
+        "destino.id_destino",
+        "destino.nombreDestino"
+      ],
+      [
+        "producto.id_categoriaPro" => $idCategoria
+      ]
+  
+    );
 		return ($data) ? $data : [];
 	}
   public function validProducto($nombre)
   {
     $res = $this->db->has("producto", [
     	"AND" => [
-    		"nombreProducto" => $nombre
+        "nombreProducto" => $nombre
     	]
     ]);
     return $res;
   }
-  public function newProducto($form)
+  public function validProductoEdit($id, $nombre)
   {
-    $insert = $this->db->insert("producto",
+    $res = $this->db->has("producto", [
+    	"AND" => [
+        "nombreProducto" => $nombre,
+        "id_producto[!]" => $id
+    	]
+    ]);
+    return $res;
+  }
+  public function newProductoReceta($form)
+  {
+    $insertPr = $this->db->insert("producto",
     [
       "id_categoriaPro" => $form['categoria'],
       "id_tipoPoducto" => $form['tipo'],
@@ -95,22 +110,66 @@ class modeloProductos
       "nombreProducto" => $form['nombreP'],
       "precio" => $form['precio']
     ]);
+    $idProducto = $this->db->id();
+    if($insertPr->rowCount() === 1){
+      foreach($form['insumos'] as $insumo){
+        $insertIn = $this->db->insert("productoreceta",
+        [
+          "id_producto" => $idProducto,
+          "id_insumo" => $insumo['id_insumo'],
+          "cantidad" => $insumo['cantidad']
+        ]);
+      }
+      
+      return $insertIn->rowCount() === 1 ? true : 0;
+    }else{
+      return false;
+    }
 
-    return $insert->rowCount() === 1 ? true : false;
+    
 
   }
-  public function editProducto($idProducto, $nombre)
+  public function newProductoUnidad($form)
+  {
+    $insertPr = $this->db->insert("producto",
+    [
+      "id_categoriaPro" => $form['categoria'],
+      "id_tipoPoducto" => $form['tipo'],
+      "id_destino" => $form['destino'],
+      "nombreProducto" => $form['nombreP'],
+      "precio" => $form['precio']
+    ]);
+    return $insertPr->rowCount() === 1 ? true : false;
+  }
+  public function editProducto($form)
   {
     $insert = $this->db->update("producto",
       [
-      "nombreProducto" => $nombre
+      "id_categoriaPro" => $form['categoria'],
+      "id_destino" => $form['destino'],
+      "nombreProducto" => $form['nombreP'],
+      "precio" => $form['precio'],
       ],
       [
-        "id_producto" => $idProducto
+        "id_producto" => $form['id']
       ]
     );
 
     return $insert->rowCount() === 1 ? true : false;
 
+  }
+
+  public function addInsumosProducto($idProducto, $insumos)
+  {
+    foreach($insumos as $insumo){
+      $insertIn = $this->db->insert("productoreceta",
+      [
+        "id_producto" => $idProducto,
+        "id_insumo" => $insumo['id_insumo'],
+        "cantidad" => $insumo['cantidad']
+      ]);
+    }
+    
+    return $insertIn->rowCount() === 1 ? true : 0;
   }
 }

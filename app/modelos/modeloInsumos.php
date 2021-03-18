@@ -202,4 +202,53 @@ class modeloInsumos
     return $insert->rowCount() === 1 ? true : false;
 
   }
+  public function getInsumosProducto($idProducto)
+	{
+    $data = $this->db->select("insumo",
+      [
+        "[><]productoreceta" => ["id_insumo" => "id_insumo"],
+        "[><]unidad" => ["id_unidad" => "id_unidad"],
+        "[><]medida" => ["id_medida" => "id_medida"]
+      ],
+      [
+        "productoreceta.id_productoInsumo",
+        "productoreceta.cantidad",
+        "productoreceta.statusProductoinsumo",
+        "insumo.nombreInsumo",
+        "medida.nombreMedida"
+      ],
+      [
+        "productoreceta.id_producto" => $idProducto
+      ]
+    );
+		return ($data) ? $data : [];
+  }
+  public function updateStatusInP($idProIn, $status)
+  {
+    $update = $this->db->update("productoreceta",
+      [
+      "statusProductoinsumo" => $status
+      ],
+      [
+        "id_productoInsumo" => $idProIn
+      ]
+    );
+
+    return $update->rowCount() === 1 ? true : false;
+
+  }
+  public function updateCantidadInP($idProIn, $cantidad)
+  {
+    $update = $this->db->update("productoreceta",
+      [
+      "cantidad" => $cantidad
+      ],
+      [
+        "id_productoInsumo" => $idProIn
+      ]
+    );
+
+    return $update->rowCount() === 1 ? true : false;
+
+  }
 }

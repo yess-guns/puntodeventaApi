@@ -80,13 +80,13 @@ class Productos extends Controlador
 
   //Productos
 
-	public function getProductos(){
+	public function getProductos($idCategoria){
 		$resp = [
       'status' => '',
       'res' => ''
     ];
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-      $Productos = $this->modelo->getProductos();
+      $Productos = $this->modelo->getProductos($idCategoria);
       $resp['status'] = 'OK';
       $resp['res'] = $Productos;
       echo json_encode($resp);
@@ -107,11 +107,18 @@ class Productos extends Controlador
       if($valid){
         $resp['status'] = 'existing';
       }else{
-        $addI = $this->modelo->newProducto($form);
-        if($addI){
-          $resp['status'] = 'OK';
+        if($form['tipo'] == 2){
+          $addProd = $this->modelo->newProductoReceta($form);
         }else{
-          $resp['status'] = 'error';
+          $addProd = $this->modelo->newProductoUnidad($form);
+        }
+        
+        if($addProd === true){
+          $resp['status'] = 'OK';//Todo bien
+        }elseif($addProd === 0) {
+          $resp['status'] = 0;//soló se guardo el producto pero no sus insumos
+        }else{
+          $resp['status'] = 'error';// error total
           $resp['res'] = 'Error de sintaxis';
         }        
       } 
@@ -123,6 +130,32 @@ class Productos extends Controlador
     }
   }
   public function editProducto(){
+		$resp = [
+      'status' => '',
+      'res' => ''
+    ];
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      $form = json_decode($_POST['form'], true);
+      $valid = $this->modelo->validProductoEdit($form['id'],$form['nombreP']);
+      if($valid){
+        $resp['status'] = 'existing';
+      }else{
+        $addI = $this->modelo->editProducto($form);
+        if($addI === true){
+          $resp['status'] = 'OK';//Todo bien
+        }else{
+          $resp['status'] = 'error';// error total
+          $resp['res'] = 'Error de sintaxis';
+        }        
+      } 
+      echo json_encode($resp);
+    }else{
+      $resp['status'] = 'err';
+      $resp['res'] = 'Metodo invalido';
+      echo json_encode($resp);
+    }
+  }
+  public function editProducto2(){//Eliminar
 		$resp = [
       'status' => '',
       'res' => ''
@@ -142,6 +175,29 @@ class Productos extends Controlador
           $resp['res'] = 'Error de sintaxis';
         }        
       } 
+      echo json_encode($resp);
+    }else{
+      $resp['status'] = 'err';
+      $resp['res'] = 'Metodo invalido';
+      echo json_encode($resp);
+    }
+  }
+
+  public function addInsumosProducto(){
+		$resp = [
+      'status' => '',
+      'res' => ''
+    ];
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      $idProducto = json_decode($_POST['id_producto'], true);
+      $insumos = json_decode($_POST['insumos'], true);
+      $addI = $this->modelo->addInsumosProducto($idProducto, $insumos);
+        if($addI === true){
+          $resp['status'] = 'OK';
+        }else{
+          $resp['status'] = 'error';
+          $resp['res'] = 'Error de sintaxis';
+        } 
       echo json_encode($resp);
     }else{
       $resp['status'] = 'err';
