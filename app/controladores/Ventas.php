@@ -4,7 +4,12 @@ class Ventas extends Controlador
 
 	public function __construct()
 	{
-		$this->modelo = $this->modelos('modeloVentas');
+    $this->modelo = $this->modelos('modeloVentas');
+    $this->modeloMesas = $this->modelos('modeloMesas');
+    $this->resp = [
+      'status' => 'err',
+      'res' => 'Metodo invalido'
+    ];
 	}
   
 	public function newVenta(){
@@ -43,6 +48,20 @@ class Ventas extends Controlador
       $resp['status'] = 'err';
       $resp['res'] = 'Metodo invalido';
       echo json_encode($resp);
+    }
+  }
+
+  public function ventaById($idVenta){
+		$resp = [
+      'status' => ''
+    ];
+    if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+      $mesas = $this->modeloMesas->mesasVenta($idVenta);
+      $resp['status'] = 'OK';
+      $resp['mesas'] = $mesas;
+      echo json_encode($resp);
+    }else{
+      echo json_encode($this->resp);
     }
   }
 

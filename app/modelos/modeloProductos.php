@@ -172,4 +172,44 @@ class modeloProductos
     
     return $insertIn->rowCount() === 1 ? true : 0;
   }
+
+  //Ventas
+  //----Categorias
+	public function getCategoriasProd()
+	{
+    $data = $this->db->select("categoriaproducto",
+      [
+        "id_categoriaPro",
+        "nombrecategoriaPro"
+      ],
+      [
+        "statusCategoriaPro" => 1 //solo categorias activas
+      ]
+    );
+		return ($data) ? $data : [];
+  }
+  public function getProductosByCate($idCategoria)
+	{
+    $data = $this->db->select("producto",
+      [
+        "[><]categoriaproducto" => ["id_categoriaPro" => "id_categoriaPro"],
+        "[><]tipoproducto" => ["id_tipoPoducto" => "id_tipoPoducto"],
+        "[><]destino" => ["id_destino" => "id_destino"]
+      ],
+      [
+        "producto.id_producto",
+        "producto.nombreProducto",
+        "producto.precio",
+        "tipoproducto.id_tipoPoducto",
+        "destino.id_destino",
+        "destino.nombreDestino"
+      ],
+      [
+        "producto.id_categoriaPro" => $idCategoria,
+        "producto.statusProducto" => 1 //solo platillos activos
+      ]
+  
+    );
+		return ($data) ? $data : [];
+	}
 }

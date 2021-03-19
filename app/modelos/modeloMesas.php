@@ -35,5 +35,18 @@ class modeloMesas
     );
 		return ($data) ? $data : [];
   }
+
+  public function mesasVenta($idVenta)
+	{
+    $mesas = $this->db->select("mesas",
+      [
+        "numero"
+      ],
+      [
+        "id_venta" => $idVenta
+      ]
+    );
+		return $mesas;
+  }
   
 }

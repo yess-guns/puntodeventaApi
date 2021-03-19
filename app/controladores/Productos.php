@@ -205,4 +205,23 @@ class Productos extends Controlador
       echo json_encode($resp);
     }
   }
+  //Venta
+  public function getCateProductos(){
+		$resp = [
+      'status' => ''
+    ];
+    if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+      $categorias = $this->modelo->getCategoriasProd();
+      foreach($categorias as $key => $cate){
+        $productos = $this->modelo->getProductosByCate($cate['id_categoriaPro']);
+        $categorias[$key]['productos'] = $productos;
+      }
+      $resp['status'] = 'OK';
+      $resp['cateProd'] = $categorias;
+      echo json_encode($resp);
+    }else{
+      echo json_encode($this->resp);
+    }
+  }
+
 }

@@ -14,7 +14,7 @@ class modeloVentas
 	public function newVenta($idEmpleado, $mesas, $comensales)
 	{
     $fecha = date('Y-m-d');
-    $hora = date('H-m-s');
+    $hora = date("H:i:s");
     $insert = $this->db->insert("ventas",
     [
       "id_empleado" => $idEmpleado,
