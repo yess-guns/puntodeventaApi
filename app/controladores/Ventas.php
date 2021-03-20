@@ -19,18 +19,16 @@ class Ventas extends Controlador
       $mesas = json_decode($_POST['mesaSelect'], true);
       $comensales = $_POST['comensales'];
       $venta = $this->modelo->newVenta($idEmpleado, $mesas, $comensales);
-      if($venta === true){
+      if($venta){
         $resp = 'OK';
       }elseif($venta === 0){
-        $resp = 'acepction';
+        $resp = 'exception';
       }else{
         $resp = 'fatalError';
       }
-      echo json_encode($resp);
+      echo json_encode(['resp' => $resp, 'idVenta' => $venta]);
     }else{
-      $resp = 'err';
-      $resp['res'] = 'Metodo invalido';
-      echo json_encode($resp);
+      echo json_encode($this->resp);
     }
   }
 
@@ -45,9 +43,7 @@ class Ventas extends Controlador
       $resp['res'] = $mesas;
       echo json_encode($resp);
     }else{
-      $resp['status'] = 'err';
-      $resp['res'] = 'Metodo invalido';
-      echo json_encode($resp);
+      echo json_encode($this->resp);
     }
   }
 
@@ -59,6 +55,38 @@ class Ventas extends Controlador
       $mesas = $this->modeloMesas->mesasVenta($idVenta);
       $resp['status'] = 'OK';
       $resp['mesas'] = $mesas;
+      echo json_encode($resp);
+    }else{
+      echo json_encode($this->resp);
+    }
+  }
+
+  public function savePedido(){
+		$resp = '';
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      $idVenta = $_POST['idVenta'];
+      $idEmpleado = $_POST['idEmpleado'];
+      $pedido = json_decode($_POST['pedido'], true);
+      $save = $this->modelo->savePedido($idVenta, $pedido, $idEmpleado);
+      if($save === true){
+        $resp = 'OK';
+      }else{
+        $resp = 'fatalError';
+      }
+      echo json_encode($resp);
+    }else{
+      echo json_encode($this->resp);
+    }
+  }
+
+  public function getDatosVenta($idVenta){
+		$resp = [
+      'status' => ''
+    ];
+    if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+      $ventaDatos = $this->modelo->getDatosVenta($idVenta);
+      $resp['status'] = 'OK';
+      $resp['res'] = $ventaDatos;
       echo json_encode($resp);
     }else{
       echo json_encode($this->resp);

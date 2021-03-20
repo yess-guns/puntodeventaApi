@@ -36,7 +36,7 @@ class modeloVentas
           ]
         );
       }      
-      return $update->rowCount() === 1 ? true : 0;
+      return $update->rowCount() === 1 ? $idVenta : 0;
 
     }else{
       return false;
@@ -51,6 +51,44 @@ class modeloVentas
         "numero"
       ],
       ["id_venta" => 0]
+    );
+		return ($data) ? $data : [];
+  }
+
+  public function savePedido($idVenta, $pedido, $idEmpleado)
+	{
+    foreach($pedido as $pedi){
+      $insert = $this->db->insert("ventasdatos",
+        [
+          "id_venta" => $idVenta,
+          "id_producto" => $pedi['id_producto'],
+          "id_empleado" => $idEmpleado,
+          "comenzal" => $pedi['comensal']
+        ]
+      );
+    }
+    return $insert->rowCount() === 1 ? true : false;
+  }
+
+  public function getDatosVenta($idVEnta)
+	{
+    $data = $this->db->select("ventasdatos",
+      [
+        "[><]producto" => ["id_producto" => "id_producto"],
+        "[><]empleados" => ["id_empleado" => "id_empleado"]
+      ],
+      [
+        "ventasdatos.comenzal",
+        "producto.nombreProducto",
+        "empleado" => [
+          "empleados.nombreEmpleado",
+          "empleados.apellidosEmpleado"
+        ]
+      ],
+      [
+        "ventasdatos.id_venta" => $idVEnta,
+        "ventasdatos.statusVentaDatos" => 1
+      ]
     );
 		return ($data) ? $data : [];
   }
