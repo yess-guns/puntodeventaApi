@@ -159,7 +159,8 @@ class modeloInsumos
       "insumo.catXmedida",
       "insumo.stockMinUnidad",
       "insumo.stockMinMedida",
-      "insumo.stockInventario"
+      "insumo.stockInventario",
+      "insumo.precioIn"
 		]);
 		return ($data) ? $data : [];
 	}
@@ -183,6 +184,7 @@ class modeloInsumos
       "catXmedida" => $form['cantidadM'],
       "stockMinUnidad" => $form['stockMinU'],
       "stockMinMedida" => $form['stockMinM'],
+      "precioIn" => $form['precio'],
     ]);
 
     return $insert->rowCount() === 1 ? true : false;
