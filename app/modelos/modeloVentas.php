@@ -80,6 +80,7 @@ class modeloVentas
       [
         "ventasdatos.comenzal",
         "producto.nombreProducto",
+        "producto.precio",
         "empleado" => [
           "empleados.nombreEmpleado",
           "empleados.apellidosEmpleado"
@@ -91,6 +92,95 @@ class modeloVentas
       ]
     );
 		return ($data) ? $data : [];
+  }
+  public function getProductosDistinct($idVEnta)
+	{
+    $platiDistinct = $this->db->query(
+      "SELECT DISTINCT id_producto FROM ventasdatos
+      WHERE id_venta = $idVEnta"
+    )->fetchAll();
+    return $platiDistinct;
+  }
+  public function getPlatilloVenta($idVEnta, $idProducto)
+	{
+    $data = $this->db->select("ventasdatos",
+      [
+        "[><]producto" => ["id_producto" => "id_producto"]
+      ],
+      [
+        "producto.nombreProducto",
+        "producto.precio"
+      ],
+      [
+        "ventasdatos.id_venta" => $idVEnta,
+        "ventasdatos.id_producto" => $idProducto,
+        "ventasdatos.statusVentaDatos" => 1
+      ]
+    );
+		return ($data) ? $data : [];
+  }
+  public function pay($idVenta, $precioTotal, $pago)
+	{
+    $fechaAct = date("Y-m-d");
+    $horaAct = date("H:i:s");
+
+    $insert = $this->db->insert("pagos",
+      [
+        "id_venta" => $idVenta,
+        "total" => $precioTotal,
+        "fechaPago" => $fechaAct,
+        "horaPago" => $horaAct
+      ]
+    );
+    if($insert->rowCount() === 1){
+      $idPago = $this->db->id();
+      $pago['efectivo']['status'] == true ? $this->pagoEfectivo($idPago, $pago['efectivo']) : '';
+      $pago['tarjetaCD']['status'] == true ? $this->pagoTarjetaCD($idPago, $pago['tarjetaCD']) : '';
+      return $idPago;
+    }else{
+      return false;
+    }
+  }
+
+  public function pagoEfectivo($idPago, $pago){
+    $insert = $this->db->insert("pagoefectivo",
+      [
+        "id_pago" => $idPago,
+        "monto" => $pago['monto'],
+        "propina" => $pago['propina'],
+        "factura" => $pago['factura']
+      ]
+    );
+  }
+  public function pagoTarjetaCD($idPago, $pago){
+    $insert = $this->db->insert("pagotarjetacd",
+      [
+        "id_pago" => $idPago,
+        "monto" => $pago['monto'],
+        "id_tipoTarjeta" => $pago['tipoT'],
+        "id_tipoTAceptacion" => $pago['tipoA'],
+        "numTarjeta" => $pago['numTarjeta'],
+        "cvc" => $pago['cvc'],
+        "bouche" => $pago['bouche'],
+        "propina" => $pago['propina'],
+        "factura" => $pago['factura']
+      ]
+    );
+  }
+
+  public function getdataPago($idPago){
+    $data = $this->db->select("pagos",
+      [
+        "id_pago(folio)",
+        "total",
+        "fechaPago(fecha)",
+        "horaPago(hora)"
+      ],
+      [
+        "id_pago" => $idPago
+      ]
+    );
+		return $data;
   }
   
 }

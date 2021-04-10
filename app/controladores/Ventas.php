@@ -93,4 +93,54 @@ class Ventas extends Controlador
     }
   }
 
+  public function getDatosVentaCajero($idVenta){
+		$resp = [
+      'status' => ''
+    ];
+    if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+      $productosVenta = [];
+      $productosDistinct = $this->modelo->getProductosDistinct($idVenta);
+
+      foreach($productosDistinct as $producto){
+        $productoV = $this->modelo->getPlatilloVenta($idVenta, $producto['id_producto']);
+        $cantidad = count($productoV);
+        $precioUni = intval($productoV[0]['precio']);
+        array_push($productosVenta,[
+          'nombreProducto' => $productoV[0]['nombreProducto'],
+          'cantidad' => $cantidad,
+          'precioUni' => $precioUni,
+          'importe' => $cantidad * $precioUni
+        ]);
+      }
+      $resp['status'] = 'OK';
+      $resp['res'] = $productosVenta;
+      echo json_encode($resp);
+    }else{
+      echo json_encode($this->resp);
+    }
+  }
+
+  public function pay(){
+		$resp = '';
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      $idVenta = $_POST['idVenta'];
+      $precioTotal = $_POST['precioTotal'];
+      $dataPago = json_decode($_POST['pago'], true);
+      $pay = $this->modelo->pay($idVenta, $precioTotal, $dataPago);
+      if($pay != false){
+        $this->resp['status'] = 'OK';
+        $this->resp['res'] = $this->getPago($pay);
+      }else{
+        $this->resp['status'] = 'error';
+      }
+      echo json_encode($this->resp);
+    }else{
+      echo json_encode($this->resp);
+    }
+  }
+  public function getPago($idPago){
+    $dataPago = $this->modelo->getdataPago($idPago);
+    echo json_encode($dataPago);
+  }
+
 }
