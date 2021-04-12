@@ -53,8 +53,10 @@ class Ventas extends Controlador
     ];
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
       $mesas = $this->modeloMesas->mesasVenta($idVenta);
+      $comensales = $this->modelo->comensalesVenta($idVenta);
       $resp['status'] = 'OK';
       $resp['mesas'] = $mesas;
+      $resp['comensales'] = $comensales['comensales'];
       echo json_encode($resp);
     }else{
       echo json_encode($this->resp);
@@ -103,8 +105,12 @@ class Ventas extends Controlador
 
       foreach($productosDistinct as $producto){
         $productoV = $this->modelo->getPlatilloVenta($idVenta, $producto['id_producto']);
+        //validar si ya tiene pago
+        $pago = $this->modelo->getPagoVentaC($idVenta);
+        $pago = $pago == false ? null : $this->getTiposPagoVenta($pago);
+        $mesero = $this->modelo->getMeseroVenta($idVenta);
         $cantidad = count($productoV);
-        $precioUni = intval($productoV[0]['precio']);
+        $precioUni = floatval($productoV[0]['precio']);
         array_push($productosVenta,[
           'nombreProducto' => $productoV[0]['nombreProducto'],
           'cantidad' => $cantidad,
@@ -113,11 +119,23 @@ class Ventas extends Controlador
         ]);
       }
       $resp['status'] = 'OK';
-      $resp['res'] = $productosVenta;
+      $resp['res'] = [
+        "venta" => $productosVenta,
+        "pago" => $pago,
+        "mesero" => $mesero
+      ];
       echo json_encode($resp);
     }else{
       echo json_encode($this->resp);
     }
+  }
+
+  public function getTiposPagoVenta($dataPago){
+    $pEfectivo = $this->modelo->getDataPagoEfectivo($dataPago['id_pago']);
+    $pTarjeta = $this->modelo->getDataPagoTarjeta($dataPago['id_pago']);
+    $dataPago['pagoEf'] = $pEfectivo;
+    $dataPago['pagoTj'] = $pTarjeta;
+    return $dataPago;
   }
 
   public function pay(){
@@ -140,7 +158,12 @@ class Ventas extends Controlador
   }
   public function getPago($idPago){
     $dataPago = $this->modelo->getdataPago($idPago);
-    echo json_encode($dataPago);
+    $pEfectivo = $this->modelo->getDataPagoEfectivo($idPago);
+    $pTarjeta = $this->modelo->getDataPagoTarjeta($idPago);
+    $dataPago['pagoEf'] = $pEfectivo;
+    $dataPago['pagoTj'] = $pTarjeta;
+    //echo json_encode($dataPago);
+    return $dataPago;
   }
 
 }

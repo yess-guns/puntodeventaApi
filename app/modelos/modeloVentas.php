@@ -93,6 +93,19 @@ class modeloVentas
     );
 		return ($data) ? $data : [];
   }
+
+  public function comensalesVenta($idVenta)
+	{
+    $comensales = $this->db->get("ventas",
+      [
+        "comensales"
+      ],
+      [
+        "id_venta" => $idVenta
+      ]
+    );
+		return $comensales;
+  }
   public function getProductosDistinct($idVEnta)
 	{
     $platiDistinct = $this->db->query(
@@ -169,7 +182,7 @@ class modeloVentas
   }
 
   public function getdataPago($idPago){
-    $data = $this->db->select("pagos",
+    $data = $this->db->get("pagos",
       [
         "id_pago(folio)",
         "total",
@@ -183,4 +196,69 @@ class modeloVentas
 		return $data;
   }
   
+  public function getDataPagoEfectivo($idPago){
+    $data = $this->db->get("pagoefectivo",
+      [
+        "monto",
+        "propina"
+      ],
+      [
+        "id_pago" => $idPago,
+        "statusPagoEf" => 1
+      ]
+    );
+		return $data;
+  }
+
+  public function getDataPagoTarjeta($idPago){
+    $data = $this->db->get("pagotarjetacd",
+      [
+        "[><]tipotarjeta" => ["id_tipoTarjeta" => "id_tipoTarjeta"],
+        "[><]tipotaceptacion" => ["id_tipoTAceptacion" => "id_tipoTAceptacion"],
+      ],
+      [
+        "pagotarjetacd.monto",
+        "pagotarjetacd.propina",
+        "tipotarjeta.nombreTipoT(tipo)",
+        "tipotaceptacion.nombreTacpetacion(aceptacion)"
+      ],
+      [
+        "pagotarjetacd.id_pago" => $idPago,
+        "pagotarjetacd.statusPagoT" => 1
+      ]
+    );
+		return $data;
+  }
+
+  public function getPagoVentaC($idVenta){
+    $data = $this->db->get("pagos",
+      [
+        "id_pago",
+        "id_pago(folio)",
+        "total",
+        "fechaPago(fecha)",
+        "horaPago(hora)"
+      ],
+      [
+        "id_venta" => $idVenta
+      ]
+    );
+		return $data;
+  }
+
+  public function getMeseroVenta($idVenta){
+    $data = $this->db->get("ventas",
+      [
+        "[><]empleados" => ["id_empleado" => "id_empleado"]
+      ],
+      [
+        "empleados.nombreEmpleado(nombre)",
+        "empleados.apellidosEmpleado(apellidos)"
+      ],
+      [
+        "ventas.id_venta" => $idVenta
+      ]
+    );
+		return $data;
+  }
 }
