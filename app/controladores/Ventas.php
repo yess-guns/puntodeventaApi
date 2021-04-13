@@ -54,9 +54,11 @@ class Ventas extends Controlador
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
       $mesas = $this->modeloMesas->mesasVenta($idVenta);
       $comensales = $this->modelo->comensalesVenta($idVenta);
+      $statusPago = $this->modelo->validPagoV($idVenta);
       $resp['status'] = 'OK';
       $resp['mesas'] = $mesas;
       $resp['comensales'] = $comensales['comensales'];
+      $resp['statusPago'] = $statusPago;
       echo json_encode($resp);
     }else{
       echo json_encode($this->resp);
@@ -105,10 +107,6 @@ class Ventas extends Controlador
 
       foreach($productosDistinct as $producto){
         $productoV = $this->modelo->getPlatilloVenta($idVenta, $producto['id_producto']);
-        //validar si ya tiene pago
-        $pago = $this->modelo->getPagoVentaC($idVenta);
-        $pago = $pago == false ? null : $this->getTiposPagoVenta($pago);
-        $mesero = $this->modelo->getMeseroVenta($idVenta);
         $cantidad = count($productoV);
         $precioUni = floatval($productoV[0]['precio']);
         array_push($productosVenta,[
@@ -118,10 +116,14 @@ class Ventas extends Controlador
           'importe' => $cantidad * $precioUni
         ]);
       }
+      //validar si ya tiene pago
+      $pago = $this->modelo->getPagoVentaC($idVenta);
+      $pagoV = $pago == false ? null : $this->getTiposPagoVenta($pago);
+      $mesero = $this->modelo->getMeseroVenta($idVenta);
       $resp['status'] = 'OK';
       $resp['res'] = [
         "venta" => $productosVenta,
-        "pago" => $pago,
+        "pago" => $pagoV,
         "mesero" => $mesero
       ];
       echo json_encode($resp);
@@ -142,9 +144,10 @@ class Ventas extends Controlador
 		$resp = '';
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $idVenta = $_POST['idVenta'];
+      $idEmpleado = $_POST['id_empleado'];
       $precioTotal = $_POST['precioTotal'];
       $dataPago = json_decode($_POST['pago'], true);
-      $pay = $this->modelo->pay($idVenta, $precioTotal, $dataPago);
+      $pay = $this->modelo->pay($idVenta, $idEmpleado, $precioTotal, $dataPago);
       if($pay != false){
         $this->resp['status'] = 'OK';
         $this->resp['res'] = $this->getPago($pay);
@@ -164,6 +167,39 @@ class Ventas extends Controlador
     $dataPago['pagoTj'] = $pTarjeta;
     //echo json_encode($dataPago);
     return $dataPago;
+  }
+
+  public function finVenta(){
+		$resp = '';
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      $idVenta = $_POST['idVenta'];
+      $finish = $this->modelo->finVenta($idVenta);
+      if($finish == true){
+        $resp = 'OK';
+      }else{
+        $resp = 'error';
+      }
+      echo json_encode($resp);
+    }else{
+      echo json_encode($this->resp);
+    }
+  }
+
+  public function cancelarVenta(){
+		$resp = '';
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      $idVenta = $_POST['idVenta'];
+      $idEmpleado = $_POST['idEmpleado'];
+      $finish = $this->modelo->cancelarVenta($idVenta, $idEmpleado);
+      if($finish == true){
+        $resp = 'OK';
+      }else{
+        $resp = 'error';
+      }
+      echo json_encode($resp);
+    }else{
+      echo json_encode($this->resp);
+    }
   }
 
 }

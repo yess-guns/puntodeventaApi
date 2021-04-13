@@ -132,7 +132,7 @@ class modeloVentas
     );
 		return ($data) ? $data : [];
   }
-  public function pay($idVenta, $precioTotal, $pago)
+  public function pay($idVenta, $idEmpleado, $precioTotal, $pago)
 	{
     $fechaAct = date("Y-m-d");
     $horaAct = date("H:i:s");
@@ -140,6 +140,7 @@ class modeloVentas
     $insert = $this->db->insert("pagos",
       [
         "id_venta" => $idVenta,
+        "id_empleado" => $idEmpleado,
         "total" => $precioTotal,
         "fechaPago" => $fechaAct,
         "horaPago" => $horaAct
@@ -184,10 +185,18 @@ class modeloVentas
   public function getdataPago($idPago){
     $data = $this->db->get("pagos",
       [
-        "id_pago(folio)",
-        "total",
-        "fechaPago(fecha)",
-        "horaPago(hora)"
+        "[><]empleados" => ["id_empleado" => "id_empleado"]
+      ],
+      [
+        "pagos.id_pago",
+        "pagos.id_pago(folio)",
+        "pagos.total",
+        "pagos.fechaPago(fecha)",
+        "pagos.horaPago(hora)",
+        "cajero" => [
+          "empleados.nombreEmpleado(nombre)",
+          "empleados.apellidosEmpleado(apellidos)"
+        ]
       ],
       [
         "id_pago" => $idPago
@@ -233,11 +242,18 @@ class modeloVentas
   public function getPagoVentaC($idVenta){
     $data = $this->db->get("pagos",
       [
-        "id_pago",
-        "id_pago(folio)",
-        "total",
-        "fechaPago(fecha)",
-        "horaPago(hora)"
+        "[><]empleados" => ["id_empleado" => "id_empleado"]
+      ],
+      [
+        "pagos.id_pago",
+        "pagos.id_pago(folio)",
+        "pagos.total",
+        "pagos.fechaPago(fecha)",
+        "pagos.horaPago(hora)",
+        "cajero" => [
+          "empleados.nombreEmpleado(nombre)",
+          "empleados.apellidosEmpleado(apellidos)"
+        ]
       ],
       [
         "id_venta" => $idVenta
@@ -260,5 +276,64 @@ class modeloVentas
       ]
     );
 		return $data;
+  }
+
+  public function validPagoV($idVenta){
+    $data = $this->db->has("pagos",
+      [
+        "id_venta" => $idVenta
+      ]
+    );
+		return $data;
+  }
+
+  public function finVenta($idVenta){//venta Finalizada
+    $update = $this->db->update("ventas",
+      [
+        "statusVenta" => 0
+      ],
+      [
+        "id_venta" => $idVenta
+      ]
+    );
+    $this->finMesaVenta($idVenta);
+    return $update->rowCount() === 1 ? true : false;
+  }
+
+  public function finMesaVenta($idVenta){
+    $updateM = $this->db->update("mesas",
+      [
+        "id_venta" => 0
+      ],
+      [
+        "id_venta" => $idVenta
+      ]
+    );
+  }
+
+  public function cancelarVenta($idVenta, $idEmpleado){//venta Cancelada
+    $update = $this->db->update("ventas",
+      [
+        "statusVenta" => 2
+      ],
+      [
+        "id_venta" => $idVenta
+      ]
+    );
+    $this->finMesaVenta($idVenta);
+    $this->ventaCancelada($idVenta, $idEmpleado);
+    return $update->rowCount() === 1 ? true : false;
+  }
+
+  public function ventaCancelada($idVenta, $idEmpleado){
+    $fecha = date('Y-m-d');
+    $hora = date("H:i:s");
+    $insert = $this->db->insert("ventaCancelada",
+    [
+      "id_venta" => $idVenta,
+      "id_empleado" => $idEmpleado,
+      "fechaC" => $fecha,
+      "horaC" => $hora
+    ]);
   }
 }
