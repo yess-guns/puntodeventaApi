@@ -78,6 +78,7 @@ class modeloVentas
         "[><]empleados" => ["id_empleado" => "id_empleado"]
       ],
       [
+        "ventasdatos.id_ventaDatos",
         "ventasdatos.comenzal",
         "producto.nombreProducto",
         "producto.precio",
@@ -110,7 +111,7 @@ class modeloVentas
 	{
     $platiDistinct = $this->db->query(
       "SELECT DISTINCT id_producto FROM ventasdatos
-      WHERE id_venta = $idVEnta"
+      WHERE id_venta = $idVEnta AND statusVentaDatos = 1"
     )->fetchAll();
     return $platiDistinct;
   }
@@ -335,5 +336,17 @@ class modeloVentas
       "fechaC" => $fecha,
       "horaC" => $hora
     ]);
+  }
+
+  public function cancelarProducto($id_ventaDatos){//cancelar producto
+    $update = $this->db->update("ventasdatos",
+      [
+        "statusVentaDatos" => 2
+      ],
+      [
+        "id_ventaDatos" => $id_ventaDatos
+      ]
+    );
+    return $update->rowCount() === 1 ? true : false;
   }
 }

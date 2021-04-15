@@ -108,6 +108,7 @@ class Ventas extends Controlador
       foreach($productosDistinct as $producto){
         $productoV = $this->modelo->getPlatilloVenta($idVenta, $producto['id_producto']);
         $cantidad = count($productoV);
+        //var_dump($productoV);
         $precioUni = floatval($productoV[0]['precio']);
         array_push($productosVenta,[
           'nombreProducto' => $productoV[0]['nombreProducto'],
@@ -190,8 +191,24 @@ class Ventas extends Controlador
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $idVenta = $_POST['idVenta'];
       $idEmpleado = $_POST['idEmpleado'];
-      $finish = $this->modelo->cancelarVenta($idVenta, $idEmpleado);
-      if($finish == true){
+      $cancel = $this->modelo->cancelarVenta($idVenta, $idEmpleado);
+      if($cancel == true){
+        $resp = 'OK';
+      }else{
+        $resp = 'error';
+      }
+      echo json_encode($resp);
+    }else{
+      echo json_encode($this->resp);
+    }
+  }
+
+  public function cancelarProducto(){
+		$resp = '';
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      $id_ventaDatos = $_POST['id_ventaDatos'];
+      $cancel = $this->modelo->cancelarProducto($id_ventaDatos);
+      if($cancel == true){
         $resp = 'OK';
       }else{
         $resp = 'error';
