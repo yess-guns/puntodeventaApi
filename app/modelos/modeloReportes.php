@@ -58,4 +58,38 @@ class modeloReportes
 		return ($data) ? $data : [];
   }
 
+  public function getVentaByDay($date)
+	{
+    $ventas = $this->db->select("ventas",
+      [
+        "id_venta",
+        "fecha",
+        "comensales",
+      ],
+      [
+        "fecha" => $date,
+        "statusVenta" => 0
+      ]
+    );
+		return $ventas;
+  }
+
+  public function getVentaByMonth($date)
+	{
+    $inicio = $date.'-01';
+    $final = $date.'-31';
+    $ventas = $this->db->select("ventas",
+      [
+        "id_venta",
+        "fecha",
+        "comensales",
+      ],
+      [
+        "fecha[<>]" => [$inicio, $final],
+        "statusVenta" => 0
+      ]
+    );
+		return $ventas;
+  }
+
 }
