@@ -81,7 +81,7 @@ class Empleados extends Controlador
   public function editEmpleado(){
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $form = json_decode($_POST['form'], true);
-      $valid = $this->modelo->validClave($form['clave']);
+      $valid = $this->modelo->validClave2($form['id_empleado'],$form['clave']); 
       if($valid){
         $this->resp['status'] = 'existing';
       }else{

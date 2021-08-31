@@ -113,5 +113,15 @@ class modeloEmpleados
     ]);
     return $res;
   }
+  public function validClave2($idEmpleado, $clave)
+	{
+    $res = $this->db->has("empleados", [
+    	"AND" => [
+    		"claveAcceso" => $clave,
+        "id_empleado[!]" => $idEmpleado
+    	]
+    ]);
+    return $res;
+  }
   
 }
